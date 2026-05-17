@@ -9,7 +9,8 @@ from langchain_google_genai import (
     ChatGoogleGenerativeAI
 )
 
-from langchain.chains.question_answering import load_qa_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
 
 import os
 
@@ -60,14 +61,26 @@ def get_vector_store(chunks):
 # QA CHAIN
 def get_chain():
 
+    prompt = ChatPromptTemplate.from_template(
+        """
+        Answer the question based only on the provided context.
+
+        Context:
+        {context}
+
+        Question:
+        {input}
+        """
+    )
+
     model = ChatGoogleGenerativeAI(
         model="gemini-pro",
         temperature=0.3
     )
 
-    chain = load_qa_chain(
+    chain = create_stuff_documents_chain(
         model,
-        chain_type="stuff"
+        prompt
     )
 
     return chain
@@ -89,16 +102,15 @@ def answer_question(user_question):
 
     chain = get_chain()
 
-    response = chain(
-        {
-            "input_documents": docs,
-            "question": user_question
-        },
-        return_only_outputs=True
-    )
+   response = chain.invoke(
+    {
+        "context": docs,
+        "input": user_question
+    }
+)
 
     st.write("## Answer")
-    st.write(response["output_text"])
+   st.write(response)
 
 # SIDEBAR
 with st.sidebar:
