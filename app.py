@@ -102,15 +102,18 @@ def answer_question(user_question):
 
     chain = get_chain()
 
-   response = chain.invoke(
-    {
-        "context": docs,
-        "input": user_question
-    }
-)
+    response = chain.invoke(
+        {
+            "context": docs,
+            "input": user_question
+        }
+    )
 
-    st.write("## Answer")
-   st.write(response)
+    st.success("Answer Generated")
+
+    st.write("## 📌 Answer")
+
+    st.write(response)
 
 # SIDEBAR
 with st.sidebar:
